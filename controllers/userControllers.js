@@ -1,6 +1,7 @@
 const AppError = require('../utils/appError');
 const User = require('./../models/userModel')
 const catchAsync = require('./../utils/catchAsync')
+const factory = require('./handleFactory')
 
 const filterObj = ( obj, ...allowedFileds) => {
     const newObj = {};
@@ -10,16 +11,12 @@ const filterObj = ( obj, ...allowedFileds) => {
     return newObj;
 }
 
-exports.GetAllUsers = catchAsync(async (req, res, next) => {
-    const users = await User.find();
-    res.status(200).json({
-        status: 'success',
-        results: users.length,
-        data: {
-            users
-        }
-    })
-})
+exports.GetAllUsers = factory.getAll(User)
+
+exports.getMe = (req, res, next) => {
+    req.params.id = req.user.id;
+    next();
+}
 
 exports.updateMe = catchAsync( async (req, res, next) => {
     if(req.body.password || req.body.passwordConfirm){
@@ -54,23 +51,6 @@ exports.createUser = (req, res) => {
         message: 'this router is not found'
     })
 }
-
-exports.updateUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'this router is not found'
-    })
-}
-exports.getUserbyId = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'this router is not found'
-    })
-}
-
-exports.deleteUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'this router is not found'
-    })
-}
+exports.getUserbyId = factory.getOne(User)
+exports.updateUser = factory.updateOne(User)
+exports.deleteUser = factory.deleteOne(User)
